@@ -7,10 +7,9 @@
             <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
                 <li class="breadcrumb-item">
                     <a href="{{ route('dashboard') }}">
-                        <svg class="icon icon-xxs" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2"
+                        <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6">
                             </path>
                         </svg>
@@ -29,8 +28,7 @@
 
 
             <div>
-                <a href="{{ route('user.create') }}"
-                    class="btn btn-success text-white">
+                <a href="{{ route('user.create') }}" class="btn btn-success text-white">
                     Tambah User
                 </a>
             </div>
@@ -57,10 +55,10 @@
             <div class="card border-0 shadow mb-4">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="table-user"
-                            class="table table-centered table-nowrap mb-0 rounded">
+                        <table id="table-user" class="table table-centered table-nowrap mb-0 rounded">
                             <thead class="thead-light">
                                 <tr>
+                                    <th class="border-0">No</th>
                                     <th class="border-0">NAME</th>
                                     <th class="border-0">EMAIL</th>
                                     <th class="border-0">PASSWORD</th>
@@ -70,8 +68,13 @@
 
 
                             <tbody>
+                                @php
+                                    $i = 0;
+                                @endphp
                                 @forelse ($dataUser as $item)
                                     <tr>
+                                        <td>{{ ($dataUser->currentPage() - 1) * $dataUser->perPage() + $loop->iteration }}
+                                        </td>
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->email }}</td>
 
@@ -81,24 +84,20 @@
 
 
                                         <td>
-                                            <a href="{{ route('user.edit', $item->id) }}"
-                                                class="btn btn-info btn-sm">
+                                            <a href="{{ route('user.edit', $item->id) }}" class="btn btn-info btn-sm">
                                                 <i class="fas fa-edit me-1"></i>
                                                 Edit
                                             </a>
 
 
-                                            <form
-                                                action="{{ route('user.destroy', $item->id) }}"
-                                                method="POST"
+                                            <form action="{{ route('user.destroy', $item->id) }}" method="POST"
                                                 style="display:inline"
                                                 onsubmit="return confirm('Yakin ingin menghapus user ini?')">
                                                 @csrf
                                                 @method('DELETE')
 
 
-                                                <button type="submit"
-                                                    class="btn btn-danger btn-sm">
+                                                <button type="submit" class="btn btn-danger btn-sm">
                                                     <i class="fas fa-trash me-1"></i>
                                                     Hapus
                                                 </button>
@@ -114,6 +113,9 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        <div class="mt-3">
+                            {{ $dataUser->links('pagination::bootstrap-5') }}
+                        </div>
                     </div>
                 </div>
             </div>
