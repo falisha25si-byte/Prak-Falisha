@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pelanggan extends Model
 {
-
     protected $table      = 'pelanggan';
     protected $primaryKey = 'pelanggan_id';
-    protected $fillable   = [
+
+    protected $fillable = [
         'first_name',
         'last_name',
         'birthday',
@@ -17,6 +17,7 @@ class Pelanggan extends Model
         'email',
         'phone',
     ];
+
     public function scopeFilter(Builder $query, $request, array $filterableColumns): Builder
     {
         foreach ($filterableColumns as $column) {
@@ -24,7 +25,22 @@ class Pelanggan extends Model
                 $query->where($column, $request->input($column));
             }
         }
+
         return $query;
     }
 
+    public function scopeSearch(Builder $query, $request, array $searchableColumns): Builder
+    {
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($query) use ($search, $searchableColumns) {
+                foreach ($searchableColumns as $column) {
+                    $query->orWhere($column, 'LIKE', "%{$search}%");
+                }
+            });
+        }
+
+        return $query;
+    }
 }
