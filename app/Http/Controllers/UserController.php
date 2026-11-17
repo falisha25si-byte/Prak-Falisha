@@ -1,5 +1,8 @@
 <?php
+
+
 namespace App\Http\Controllers;
+
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -7,87 +10,96 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
+
 class UserController extends Controller
 {
     public function index()
     {
-
-    	if(!Auth::check()){
-            return redirect()
-                ->route('login')
-                ->withErrors(['errors' => 'Silahkan login terlebih dahulu']);
-		}
-
-        $data['dataUser'] = User::paginate(10)->onEachSide(2);
-        return view('admin.user.index', $data);
+        if(!Auth::check()){
+        return redirect()
+            ->route('login')
+            ->withErrors('Silahkan login terlebih dahulu');
+        }
+        $users = User::paginate(5)->onEachSide(1);
+        return view('admin.user.index', compact('users'));
     }
+
 
     public function create()
     {
         return view('admin.user.create');
     }
 
+
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
+            'role' => 'required|in:Super Admin,Pelanggan,Mitra',
         ]);
 
-        $data['password'] = Hash::make($request->password);
 
-        User::create($data);
+        User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'required|in:Super Admin,Pelanggan,Mitra',
+        ]);
 
-        return redirect()->route('user.index')
-            ->with('success', 'Data User Berhasil Ditambahkan!');
+
+        return redirect()->route('user.index')->with('success', 'Data user berhasil ditambahkan!');
     }
 
-    public function show(string $id)
+
+    public function edit($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('admin.user.edit', compact('user'));
     }
 
-    public function edit(string $id)
-    {
-        $data['dataUser'] = User::findOrFail($id);
 
-        return view('admin.user.edit', $data);
-    }
-
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
-        $data = $request->validate([
+
+        $request->validate([
             'name'     => 'required|string|max:100',
-            'email'    => [
-                'required',
-                'email',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
+            'email'    => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => 'nullable|min:8|confirmed',
+            'role' => 'required|in:Super Admin,Pelanggan,Mitra',
+
+
         ]);
 
-        if (! empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
+
+        $data = [
+            'name'  => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ];
+
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
+
 
         $user->update($data);
 
-        return redirect()->route('user.index')
-            ->with('success', 'Perubahan Data User Berhasil!');
+
+        return redirect()->route('user.index')->with('success', 'Data user berhasil diperbarui!');
     }
 
-    public function destroy(string $id)
+
+    public function destroy($id)
     {
         $user = User::findOrFail($id);
-
         $user->delete();
 
-        return redirect()->route('user.index')
-            ->with('success', 'Data User Berhasil Dihapus!');
+
+        return redirect()->route('user.index')->with('success', 'Data user berhasil dihapus!');
     }
 }

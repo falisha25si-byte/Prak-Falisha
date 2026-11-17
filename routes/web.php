@@ -27,18 +27,20 @@ Route::get('/Hobi', function () {
 });
 
 Route::get('/nama/{param1}', function ($param1) {
-    return 'Nama saya: '.$param1;
+    return 'Nama saya: ' . $param1;
 });
 
 Route::get('{param1}/{param2}/Annisa', function () {
-    return 'Halo Falisha'.$param1;
+    return 'Halo Falisha' . $param1;
 });
 
 Route::get('{param1}/nama', function ($param1) {
-    if($param1 == 'Falisha')
+    if ($param1 == 'Falisha') {
         return 'Mahrin';
-    else
-        return 'Nama saya: '.$param1;
+    } else {
+        return 'Nama saya: ' . $param1;
+    }
+
 });
 
 Route::get('/mahasiswa', function () {
@@ -65,10 +67,10 @@ Route::put('/matakuliah/{id}', [MatakuliahController::class, 'update']);
 
 Route::delete('/matakuliah/{id}', [MatakuliahController::class, 'destroy']);
 
-Route::get('/home',[HomeController::class,'index']);
+Route::get('/home', [HomeController::class, 'index']);
 
 Route::post('question/store', [QuestionController::class, 'store'])
-		->name('question.store');
+    ->name('question.store');
 
 Route::resource('pelanggan', PelangganController::class);
 
@@ -78,8 +80,23 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
-
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+Route::get('/user', [UserController::class, 'index'])->name('user.index');
+Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
+Route::post('/user', [UserController::class, 'store'])->name('user.store');
+Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
+Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
+Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
+
+Route::middleware(['auth'])->group(function () {
+Route::middleware(['checkrole:Super Admin'])->group(function () {
+Route::resource('user', UserController::class);
+});
+
+Route::middleware(['checkrole:Super Admin,mitra'])->group(function () {
+Route::resource('pelanggan', PelangganController::class);
+});
+});

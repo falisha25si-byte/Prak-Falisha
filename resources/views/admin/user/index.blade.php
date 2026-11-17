@@ -62,6 +62,7 @@
                                     <th class="border-0">NAME</th>
                                     <th class="border-0">EMAIL</th>
                                     <th class="border-0">PASSWORD</th>
+                                    <th class="border-0">ROLE</th>
                                     <th class="border-0 rounded-end">ACTION</th>
                                 </tr>
                             </thead>
@@ -71,9 +72,9 @@
                                 @php
                                     $i = 0;
                                 @endphp
-                                @forelse ($dataUser as $item)
+                                @forelse ($users as $item)
                                     <tr>
-                                        <td>{{ ($dataUser->currentPage() - 1) * $dataUser->perPage() + $loop->iteration }}
+                                        <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
                                         </td>
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->email }}</td>
@@ -81,6 +82,7 @@
 
                                         {{-- Jangan tampilkan hash password asli --}}
                                         <td>********</td>
+                                        <td>{{ $item->role }}</td>
 
 
                                         <td>
@@ -114,7 +116,7 @@
                             </tbody>
                         </table>
                         <div class="mt-3">
-                            {{ $dataUser->links('pagination::bootstrap-5') }}
+                            {{ $users->links('pagination::bootstrap-5') }}
                         </div>
                     </div>
                 </div>
