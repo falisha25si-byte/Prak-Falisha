@@ -92,11 +92,18 @@ Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update
 Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
 
 Route::middleware(['auth'])->group(function () {
-Route::middleware(['checkrole:Super Admin'])->group(function () {
-Route::resource('user', UserController::class);
+
+    Route::middleware(['checkrole:Super Admin'])->group(function () {
+        Route::resource('user', UserController::class);
+    });
+
+    Route::middleware(['checkrole:Super Admin,mitra'])->group(function () {
+        Route::resource('pelanggan', PelangganController::class);
+    });
 });
 
-Route::middleware(['checkrole:Super Admin,mitra'])->group(function () {
-Route::resource('pelanggan', PelangganController::class);
-});
-});
+Route::get('/auth/redirect-google', [AuthController::class, 'redirectToGoogle'])
+    ->name('redirect.google');
+
+Route::get('/google/callback', [AuthController::class, 'handleGoogleCallback'])
+    ->name('google.callback');
