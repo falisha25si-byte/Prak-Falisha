@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,6 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-
         return view('auth.login');
     }
 
@@ -45,8 +45,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')
-            ->with('success', 'Logout berhasil!');
+        return redirect()->route('auth.login');
     }
 
     public function redirectToGoogle()
@@ -56,17 +55,28 @@ class AuthController extends Controller
 
     public function handleGoogleCallback()
     {
-        // $googleUser = Socialite::driver('google')->user();
-
-        //Development only
+        //Development Only
         $googleUser = Socialite::driver('google')
             ->setHttpClient(new Client(['verify' => false]))
             ->stateless()
             ->user();
-
         $email_user = $googleUser->email;
-        dd($email_user);
 
-        /** Kode untuk autentikasi dan redirect */
+        //cari user berdasarkan email
+        $user = User::where('email', $email_user)->first();
+
+        //jika ada login kan dan redirect ke dashboard
+        if ($user) {
+            Auth::login($user);
+            request()->session()->regenerate();
+            session(['last_login' => now()]);
+
+            return redirect()->route('dashboard')
+                ->with('success', 'Login berhasil!');
+        }
+
+        //jika tidak ada kirim error ke halaman login
+        return redirect()->route('auth.login')
+            ->withErrors(['email' => 'Email tidak terdaftar!']);
     }
 }
